@@ -61,9 +61,9 @@ export class MapContainer extends Component {
         </div>
         <Map
           style={{
-            width: '90%',
-            height: '90%',
-            position: 'relative'
+            width: '100%',
+            height: '90vh',
+            position: 'relative',
           }}
           google={this.props.google}
           zoom={5}
@@ -73,13 +73,14 @@ export class MapContainer extends Component {
             lng: (lng[0] + lng[1]) / 2,
           }}>
           {(points).map((point, i) => {
-            const lat = point.coord[0].reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[1]), 0) / point.coord[0].length
-            const lng = point.coord[0].reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[0]), 0) / point.coord[0].length
+            const coord = point.place.bounding_box.coordinates[0]
+            const lat = coord.reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[1]), 0) / coord.length
+            const lng = coord.reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[0]), 0) / coord.length
             return (
               <Marker
-                name={point.place}
+                name={point.place.name}
                 key={`${i}`}
-                onClick={() => window.open(point.url, '_blank')}
+                onClick={() => window.open(point.place.url, '_blank')}
                 position={{ lat, lng }}
                 title={point.text}
               />)

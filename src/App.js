@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import styled from 'styled-components'
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import IndMap from './components/IndMap'
-
+import { grommet } from "grommet/themes"
+import { Download } from 'grommet-icons'
+import { Grommet, TextInput, Box, Button } from 'grommet'
+import fileDownload from 'js-file-download'
 
 class App extends Component {
   state = {
@@ -17,70 +17,57 @@ class App extends Component {
     this.setState({ points: response.data })
   }
 
+  dateToJSON = (date) => {
+    const local = new Date(date)
+    local.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+    return local.toJSON().slice(0, 10)
+  }
+
+  onDownload = async (jsonstr) => {
+    const {
+      state: {
+        term
+      }
+    } = this
+    const curdate = this.dateToJSON(new Date())
+    fileDownload(JSON.stringify(jsonstr, null, 2), `${term}-${curdate}.json`)
+  }
+
   render() {
     const {
       state: {
         points,
         term,
       },
-      onSearch
+      onSearch,
+      onDownload
     } = this
     return (
-      <Container>
-        <SearchBar>
-          <input type="text" placeholder="Search for..." value={term} onChange={e => this.setState({ term: e.target.value })} onKeyDown={e => {
-            if (e.key === 'Enter') {
-              onSearch(term)
-            }
-          }} />
-          <button onClick={() => onSearch(term)}>
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </SearchBar>
-        <IndMap points={points} />
-      </Container>
+      <Grommet full theme={grommet}>
+        <Box align="center" justify="start" pad="medium">
+          <Box width="medium">
+            <TextInput
+              placeholder='Search For'
+              value={term}
+              onChange={e => this.setState({ term: e.target.value })}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  onSearch(term)
+                }
+              }}
+            />
+          </Box>
+          <Button
+            icon={<Download />}
+            onClick={_ => onDownload(points)}
+          />
+        </Box>
+        <Box>
+          <IndMap points={points} />
+        </Box>
+      </Grommet>
     )
   }
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  /* align-items: center; */
-  /* padding: 40px; */
-  
-`
-
-
-const SearchBar = styled.div`
-  display: flex;
-  align-self: center;
-  width: 50%;
-  margin: 30px;
-  &>input {
-    width: 100%;
-    border: 3px solid #00B4CC;
-    border-right: none;
-    padding: 5px;
-    height: 20px;
-    border-radius: 5px 0 0 5px;
-    outline: none;
-    color: #9DBFAF;
-    &:focus {
-      color: #00B4CC;
-    }
-  }
-  &>button {
-    width: 40px;
-    height: 36px;
-    border: 1px solid #00B4CC;
-    background: #00B4CC;
-    text-align: center;
-    color: #fff;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
-    font-size: 20px;
-  }
-`
 
 export default App
