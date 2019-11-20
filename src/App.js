@@ -18,7 +18,9 @@ class App extends Component {
   }
 
   onSearch = async (suggestions, term, date, time) => {
-    const response = await axios.get(`http://localhost:3002/api/query/recent?term=${term}${date ? `&since=${new Date(`${new Date(date).toLocaleDateString()} ${time}`).toISOString()}` : ''}`)
+    const apiUri = process.env.REACT_APP_API_URI || 'http://localhost:3000/api'
+    console.log(apiUri)
+    const response = await axios.get(`${apiUri}/query/recent?term=${term}${date ? `&since=${new Date(`${new Date(date).toLocaleDateString()} ${time}`).toISOString()}` : ''}`)
     this.setState({ points: response.data, suggestions: [...suggestions, term] })
   }
 
@@ -66,8 +68,6 @@ class App extends Component {
           <Box width="medium">
             <TextInput
               placeholder='Tweets'
-              // suggestions={suggestions}
-              // dropProps={{ height: "small" }}
               value={term}
               onChange={e => this.setState({ term: e.target.value })}
               onKeyDown={e => {
