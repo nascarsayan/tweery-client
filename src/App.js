@@ -73,58 +73,77 @@ class App extends Component {
           </Box>
         ) : (
             <React.Fragment>
-              <Box align="center" justify="center" pad="medium" direction="row">
-                <Box align="center" pad={{ right: 'small' }}>
-                  <Text textAlign="center">
-                    Search For
-          </Text>
-                </Box>
-                <Box width="medium">
-                  <TextInput
-                    placeholder='Tweets'
-                    value={term}
-                    onChange={e => this.setState({ term: e.target.value })}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        onSearch(suggestions, term, date, time)
+              <Box
+                align="center"
+                justify="around"
+                margin={{ horizontal: '20rem' }}
+                pad="medium"
+                direction="row">
+                <Box align="center"
+                  justify="center"
+                  pad={{ vertical: '3px', horizontal: '10px' }}
+                  direction="row"
+                  border={{ size: 'small', color: '#ededed' }}>
+                  <Box align="center" pad={{ right: 'small' }}>
+                    <Text textAlign="center">
+                      Search For
+                  </Text>
+                  </Box>
+                  <Box width="medium">
+                    <TextInput
+                      placeholder='Tweets'
+                      value={term}
+                      onChange={e => this.setState({ term: e.target.value })}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          onSearch(suggestions, term, date, time)
+                        }
+                      }}
+                    />
+                  </Box>
+                  <Box align="center" pad={{ left: 'small' }}>
+                    <Text textAlign="center">
+                      since
+                  </Text>
+                  </Box>
+                  <Box>
+                    <DropButton
+                      open={open}
+                      onClose={() => this.setState({ open: false })}
+                      onOpen={() => this.setState({ open: true })}
+                      dropContent={
+                        <DropContent date={date} time={time} onClose={onClose} />
                       }
-                    }}
-                  />
-                </Box>
-                <Box align="center" pad={{ left: 'small' }}>
-                  <Text textAlign="center">
-                    since
-          </Text>
+                    >
+                      <Box direction="row" gap="medium" align="center" pad="small">
+                        <Text color={date ? undefined : "dark-5"}>
+                          {date
+                            ? `${new Date(date).toLocaleDateString()} ${time}`
+                            : "Select date & time"}
+                        </Text>
+                        <Schedule />
+                      </Box>
+                    </DropButton>
+                  </Box>
+                  <Box overflow="hidden" background="accent-1" round="full">
+                    <Button
+                      icon={<Search />}
+                      color='accent-1'
+                      onClick={e => {
+                        onSearch(suggestions, term, date, time)
+                      }}
+                    />
+                  </Box>
                 </Box>
                 <Box>
-                  <DropButton
-                    open={open}
-                    onClose={() => this.setState({ open: false })}
-                    onOpen={() => this.setState({ open: true })}
-                    dropContent={
-                      <DropContent date={date} time={time} onClose={onClose} />
-                    }
-                  >
-                    <Box direction="row" gap="medium" align="center" pad="small">
-                      <Text color={date ? undefined : "dark-5"}>
-                        {date
-                          ? `${new Date(date).toLocaleDateString()} ${time}`
-                          : "Select date & time"}
-                      </Text>
-                      <Schedule />
-                    </Box>
-                  </DropButton>
+                  <Button
+                    icon={<Download />}
+                    label={`Download ${points.length} tweets as JSON`}
+                    color={'#C6C6C6'}
+                    onClick={_ => onDownload(points)}
+                    disabled={points.length === 0}
+                  />
                 </Box>
-                <Button
-                  icon={<Search />}
-                  onClick={e => {
-                    onSearch(suggestions, term, date, time)
-                  }}
-                />
-                <Button
-                  icon={<Download />}
-                  onClick={_ => onDownload(points)}
-                />
               </Box>
               <Box>
                 <IndMap points={points} />
