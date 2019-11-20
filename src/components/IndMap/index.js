@@ -76,11 +76,17 @@ export class MapContainer extends Component {
             const coord = point.place.bounding_box.coordinates[0]
             const lat = coord.reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[1]), 0) / coord.length
             const lng = coord.reduce((acc, nxt) => parseFloat(acc) + parseFloat(nxt[0]), 0) / coord.length
+            let url = null
+            try {
+              url = point.entities.urls[0].url
+            } catch {
+              url = 'https://twitter.com/'
+            }
             return (
               <Marker
                 name={point.place.name}
                 key={`${i}`}
-                onClick={() => window.open(point.place.url, '_blank')}
+                onClick={() => window.open(url, '_blank')}
                 position={{ lat, lng }}
                 title={point.text}
               />)
