@@ -14,18 +14,6 @@ export class MapContainer extends Component {
     },
     showingInfoWindow: false
   }
-  onMarkerClick = (props, marker) =>
-    this.setState({
-      activeMarker: marker,
-      selectedPlace: props,
-      showingInfoWindow: true
-    })
-
-  onInfoWindowClose = () =>
-    this.setState({
-      activeMarker: null,
-      showingInfoWindow: false
-    })
 
   onMapClicked = () => {
     if (this.state.showingInfoWindow)
@@ -41,18 +29,14 @@ export class MapContainer extends Component {
           lat,
           lng
         },
-        // activeMarker,
-        // showingInfoWindow,
         selectedPlace: {
           title,
-          // url
         }
       },
       props: {
         points
       },
       onMapClicked,
-      // onInfoWindowClose
     } = this
     return (
       <React.Fragment>
@@ -91,15 +75,6 @@ export class MapContainer extends Component {
                 title={point.text}
               />)
           })}
-          {/* <InfoWindow
-            marker={activeMarker}
-            onClose={onInfoWindowClose}
-            onClick={() => window.open(url, '_blank')}
-            visible={showingInfoWindow}>
-            <div>
-              {title}
-            </div>
-          </InfoWindow> */}
         </Map>
       </React.Fragment>
     );

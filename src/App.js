@@ -1,20 +1,25 @@
 import React, { Component } from 'react'
-import axios from 'axios';
-import IndMap from './components/IndMap'
+import axios from 'axios'
 import { grommet } from "grommet/themes"
-import { Download } from 'grommet-icons'
-import { Grommet, TextInput, Box, Button } from 'grommet'
+import { Download, Schedule, Search } from 'grommet-icons'
+import { Grommet, TextInput, Box, Button, Text, DropButton } from 'grommet'
 import fileDownload from 'js-file-download'
 
+import DropContent from './components/DropContent'
+import IndMap from './components/IndMap'
 class App extends Component {
   state = {
     points: [],
-    term: ''
+    suggestions: [],
+    term: '',
+    open: false,
+    date: '',
+    time: '12:00 am',
   }
 
-  onSearch = async (term) => {
-    const response = await axios.get(`http://localhost:3002/api/query/recent?term=${term}`)
-    this.setState({ points: response.data })
+  onSearch = async (suggestions, term, date, time) => {
+    const response = await axios.get(`http://localhost:3002/api/query/recent?term=${term}${date ? `&since=${new Date(`${new Date(date).toLocaleDateString()} ${time}`).toISOString()}` : ''}`)
+    this.setState({ points: response.data, suggestions: [...suggestions, term] })
   }
 
   dateToJSON = (date) => {
@@ -38,25 +43,70 @@ class App extends Component {
       state: {
         points,
         term,
+        suggestions,
+        open,
+        date,
+        time
       },
       onSearch,
       onDownload
     } = this
+    const onClose = (nextDate, nextTime) => {
+      this.setState({ date: nextDate, time: nextTime, open: false })
+      setTimeout(() => this.setState({ open: undefined }), 1)
+    }
     return (
       <Grommet full theme={grommet}>
-        <Box align="center" justify="start" pad="medium">
+        <Box align="center" justify="center" pad="medium" direction="row">
+          <Box align="center" pad={{ right: 'small' }}>
+            <Text textAlign="center">
+              Search For
+            </Text>
+          </Box>
           <Box width="medium">
             <TextInput
-              placeholder='Search For'
+              placeholder='Tweets'
+              // suggestions={suggestions}
+              // dropProps={{ height: "small" }}
               value={term}
               onChange={e => this.setState({ term: e.target.value })}
               onKeyDown={e => {
                 if (e.key === 'Enter') {
-                  onSearch(term)
+                  onSearch(suggestions, term, date, time)
                 }
               }}
             />
           </Box>
+          <Box align="center" pad={{ left: 'small' }}>
+            <Text textAlign="center">
+              since
+            </Text>
+          </Box>
+          <Box>
+            <DropButton
+              open={open}
+              onClose={() => this.setState({ open: false })}
+              onOpen={() => this.setState({ open: true })}
+              dropContent={
+                <DropContent date={date} time={time} onClose={onClose} />
+              }
+            >
+              <Box direction="row" gap="medium" align="center" pad="small">
+                <Text color={date ? undefined : "dark-5"}>
+                  {date
+                    ? `${new Date(date).toLocaleDateString()} ${time}`
+                    : "Select date & time"}
+                </Text>
+                <Schedule />
+              </Box>
+            </DropButton>
+          </Box>
+          <Button
+            icon={<Search />}
+            onClick={e => {
+              onSearch(suggestions, term, date, time)
+            }}
+          />
           <Button
             icon={<Download />}
             onClick={_ => onDownload(points)}
